@@ -446,11 +446,11 @@ class Grid:
             raise ValueError("lat, lon and time field need to be one-dimensional!")
             
         if self.lat.size>1:
-            if not np.all(np.diff(self.lat)==np.diff(self.lat)[0]):
+            if not np.all(np.isclose(np.diff(self.lat),np.diff(self.lat)[0])):
                 raise ValueError("latitude grid needs to be evenly spaced!")
                 
         if self.lon.size>1:
-            if not np.all(np.diff(self.lon)==np.diff(self.lon)[0]):
+            if not np.all(np.isclose(np.diff(self.lon),np.diff(self.lon)[0])):
                 raise ValueError("longitude grid needs to be evenly spaced!")
             
         if self.data.shape != (self.lat.shape[0], self.lon.shape[0], self.time.shape[0]):
