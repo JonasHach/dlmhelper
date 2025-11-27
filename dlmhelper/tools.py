@@ -27,6 +27,7 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
             seasonal_harmonics: List[int] = [4], 
             variable_seasonal: List[bool] = [False],
             autoregressive: int = 1, irregular: bool = True,
+            fixed_params: dict = None,
             verbose: int = 0
            ) -> DLMResult:
     """
@@ -70,6 +71,9 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
     :type irregular: bool
     :param verbose: Determines the amount of outpout, 0 means no output
         and 2 means maximum outout, defaults to 0
+    :type fixed_params: dict
+    :param fixed_params: Use fixed covariance for fit parameters, needs 
+        dict of form {param_name: value}
     :type verbose: int
     :returns: A DLMResult object
     :rtype: DLMResult
@@ -90,14 +94,25 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
         stochastic_trend=variable_trend, 
         stochastic_freq_seasonal=variable_seasonal, irregular=irregular)
     
-    with warnings.catch_warnings():
-        warnings.simplefilter(
-            "ignore",
-            category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
-        if verbose<2:
-            result = model.fit(disp=0) 
-        else:
-            result = model.fit()
+
+    if fixed_params is not None:
+        with warnings.catch_warnings():
+            warnings.simplefilter(
+                "ignore",
+                category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
+            if verbose<2:
+                result = model.fit(disp=0) 
+            else:
+                result = model.fit()
+    else:
+        with warnings.catch_warnings():
+            warnings.simplefilter(
+                "ignore",
+                category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
+            if verbose<2:
+                result =model.fit_constrained(fixed_params,disp=0) 
+            else:
+                result = model.fit_constrained(fixed_params)
             
     return DLMResult.create(name,timeseries, result)
 
