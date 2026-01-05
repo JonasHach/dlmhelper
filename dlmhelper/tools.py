@@ -95,7 +95,7 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
         stochastic_freq_seasonal=variable_seasonal, irregular=irregular)
     
 
-    if fixed_params is not None:
+    if fixed_params is None:
         with warnings.catch_warnings():
             warnings.simplefilter(
                 "ignore",

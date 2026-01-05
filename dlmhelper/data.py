@@ -772,8 +772,14 @@ class DLMResult:
         _dicts = [dict(zip(["param", "std_err"], [res.params[i], np.sqrt(np.diag(res.cov_params()))[i]])) for i in range(res.params.shape[0])]
         dlm_fit_params = dict(zip(res.param_names, _dicts))
 
+        #Exception can happen if fixed params are used, then there is no converged field
+        try: 
+            converged = res.mle_retvals['converged']
+        except: 
+            converged = "undefined"
+            
         dlm_fit_rating = {
-            "converged": res.mle_retvals['converged'],
+            "converged": converged,
             "aic": res.aic,
             "ll": res.llf,
             "ssr": np.nansum(resid**2),
