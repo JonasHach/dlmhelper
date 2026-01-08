@@ -76,7 +76,7 @@ def _to_datetime64(time: ArrayLike, time_unit: str, reference_time: Union[np.dat
     out_time = np.empty(time.shape, dtype='datetime64[ms]')    
     
     for i, t in enumerate(time):
-        out_time[i] = reference_time + t*np.timedelta64(1,time_unit).astype('timedelta64[ms]')
+        out_time[i] = reference_time + t*np.timedelta64(1,time_unit).astype('timedelta64[ms]')+0.5*np.timedelta64(1,time_unit).astype('timedelta64[ms]')
         
         
     return out_time
