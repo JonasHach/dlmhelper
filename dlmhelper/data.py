@@ -902,18 +902,6 @@ class DLMResult:
         _ymax = np.nanpercentile(np.abs(self.resid),99)
         ax5.set_ylim(-_ymax, _ymax)
         
-        #TODO: fix and readd this
-        #from scipy.stats import norm
-        #dat = self.resid[~np.isnan(self.resid)][self._loglikeburn:]
-        #mu, std = norm.fit(dat)
-        #x=np.linspace(-_ymax,_ymax,20)
-        #p = norm.pdf(x, mu, std)
-
-        #axins = ax1.inset_axes([0.1,0.1,1,1])
-        #axins.get_yaxis().set_visible(False)
-        #axins.hist(dat,color=CH1,bins=x,density=True)
-        #axins.plot(x,p,color=CF,lw=2)
-
         return fig
     
     def plot(self, ax=None,seas=True):
@@ -1194,13 +1182,13 @@ class DLMResultList:
         else:
             return self.__getitem__(llist[-1][0])
     
-    def plot_summary(self, num: Union[str, int] ='all', converged: bool = True, sort: str ='aic',seas: bool = True,dlm_spec_filter: List[dict] = None, dlm_fit_params_filter: List[dict] = None, figsize=(20,20)):
+    def plot_summary(self, n: Union[str, int] ='all', converged: bool = True, sort: str ='aic',seas: bool = True,dlm_spec_filter: List[dict] = None, dlm_fit_params_filter: List[dict] = None, figsize=(20,20)):
         """Plot a summary of the dlm results
 
        
-        :param num: Number of dlm results to plot.
+        :param n: Number of dlm results to plot.
             Can be 'all' or integer
-        :type num: str | int, optional
+        :type n: str | int, optional
         :param converged: If `True` only show configurations
             for which the fit converged, defaults to `True`
         :type converged: bool, optional
