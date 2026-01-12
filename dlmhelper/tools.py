@@ -410,13 +410,13 @@ def dlm_ensemble(
 
 def model_selection_bias_ALI(results: DLMResultList, years: ArrayLike,
                              percentile: float = 25, metric: str = "aic",
-                            tolerance: np.timedelta64 = np.timedelta64(1,'D')):
+                            tolerance: np.timedelta64 = np.timedelta64(1,'D'), monthly: bool = False):
     """
     Calculate the model selection bias for Dynamic Linear Models results.
     
-    This function computes the model selection bias for ALIs for the given
-    DLMResultList. The bias is calculated by computing the weighted variance
-    between the average fit ALI and each individual fit ALI for each year.
+    This function computes the model selection bias (standard deviation) for ALIs 
+    for the given DLMResultList. The bias is calculated by computing the weighted
+    variance between the average fit ALI and each individual fit ALI for each year.
     The bias is calculated using all models whose metric is within 
     the specified percentile.
 
@@ -431,7 +431,9 @@ def model_selection_bias_ALI(results: DLMResultList, years: ArrayLike,
     :type metric: str
     :param tolerance: 
     :type tolerance: np.timedelta64
-    :returns: np.ndarray: An array containing the model selection bias
+    :param monthly: If input data is on monthly timesteps set this as true
+    :type monthly: bool
+    :returns: np.ndarray: An array containing the model selection bias (standard deviation)
         for each year specified in the `years` array.
     
 
@@ -454,7 +456,7 @@ def model_selection_bias_ALI(results: DLMResultList, years: ArrayLike,
         ali = np.zeros_like(years,dtype=float)
         ali_std = np.zeros_like(years,dtype=float)
         for i, y in enumerate(years):
-            ali[i], ali_std[i] = annual_level_increase(_r, y,tolerance = tolerance)
+            ali[i], ali_std[i] = annual_level_increase(_r, y,tolerance = tolerance, monthly = monthly)
 
         ali_list.append(ali)
         ali_std_list.append(ali_std)
@@ -465,7 +467,7 @@ def model_selection_bias_ALI(results: DLMResultList, years: ArrayLike,
     ali = np.zeros_like(years,dtype=float)
     ali_std = np.zeros_like(years,dtype=float)
     for i, y in enumerate(years):
-            ali[i], ali_std[i] = annual_level_increase(results.get_best_result(sort=metric), y, tolerance = tolerance)
+            ali[i], ali_std[i] = annual_level_increase(results.get_best_result(sort=metric), y, tolerance = tolerance, monthly = monthly)
             
     ali_avg = np.nanmean(ali_list, axis=0)
     ali_std_avg = np.nanstd(ali_list, axis=0)
@@ -476,10 +478,11 @@ def model_selection_bias_trend(results: DLMResultList,t1: np.datetime64 = None, 
                                percentile: float = 25, metric: str = "aic", tolerance: np.timedelta64 = None ):
     """Calculate the model selection bias for Dynamic Linear Models (DLM) results.
     
-    This function computes the model selection bias for growth rates for the given DLMResultsList. The bias is calculated by
-    computing the weighted variance between the average fit trend (growth rate) and each individual fit trend.
-    The bias is calculated using all models whose metric is within the specified percentile. If `t1` and/or `t2`
-    are specified the times will be used to determine the start and end date for the comparison.
+    This function computes the model selection bias (standard deviation) for growth rates for the given 
+    DLMResultsList. The bias is calculated by computing the weighted variance between the average fit trend
+    (growth rate) and each individual fit trend. The bias is calculated using all models whose metric is within
+    the specified percentile. If `t1` and/or `t2` are specified the times will be used to determine the start and
+    end date for the comparison.
 
     :param results: DLMResultList
     :type results: DLMResultList
@@ -495,7 +498,7 @@ def model_selection_bias_trend(results: DLMResultList,t1: np.datetime64 = None, 
         to 'aic'
     :type metric: str
     :returns: np.ndarray: An array containing the model selection bias
-        for each year specified in the `years` array.
+        (standard deviation) for each year specified in the `years` array.
 
     """
     _r = results.get_best_result(sort=metric)
@@ -575,7 +578,8 @@ def mean_level_cov_from_dates(data: DLMResult, t1: np.datetime64, t2: np.datetim
     :type t2: np.datetime64
     :param tolerance: Tolerance
     :type tolerance: np.timedelta64
-    :returns: float: Mean of the values in X that fall within the specified date range.
+    :returns: float: Mean of the covariance values in X that fall within the 
+        specified date range.
 
     """
     
@@ -606,13 +610,14 @@ def _get_idx_at_time(times,time, tolerance=np.timedelta64(1,'D')):
     else:
         return idx
     
-def annual_level_increase(data: DLMResult, year: int, tolerance: np.timedelta64 = np.timedelta64(1,'D')) -> Tuple[float, float]:
+def annual_level_increase(data: DLMResult, year: int, tolerance: np.timedelta64 = np.timedelta64(1,'D'), monthly: bool = False) -> Tuple[float, float]:
     """
     Calculate annual increase in level increase between `year` and `year+1` 
     for a given DLMResult object. Returns increase and corresponding error.
-    Uses times from DLMResult object closest to 'year-01-01' and 'year+1-12-31'
+    Uses times from DLMResult object closest to 'year-01-01' and 'year+1-01-01'
     within given tolerance for the calculation. The tolerance defaults to one day.
     Returns `(None, None)` if no times fall within tolerance.
+    The `monthly` option changes the reference time to 'year-01-15' and 'year+1-01-15'.
     
     :param data: DLMResult object used for calculation
     :type data: DLMResult
@@ -620,6 +625,8 @@ def annual_level_increase(data: DLMResult, year: int, tolerance: np.timedelta64 
     :type year: int
     :param tolerance: Tolerance
     :type tolerance: np.timedelta64
+    :param monthly: If input data is on monthly timesteps set this as true
+    :type monthly: bool
 
     :returns: Tuple[float, float]: a tuple containing the annual increase and
         standard deviation.
@@ -628,8 +635,12 @@ def annual_level_increase(data: DLMResult, year: int, tolerance: np.timedelta64 
     inc = -999
     inc_std = -999
     
-    t1 = np.datetime64(f"{year}-01-01")
-    t2 = np.datetime64(f"{year}-12-31")
+    if not monthly:
+        t1 = np.datetime64(f"{year}-01-01")
+        t2 = np.datetime64(f"{year+1}-01-01")
+    else:
+        t1 = np.datetime64(f"{year}-01-15")
+        t2 = np.datetime64(f"{year+1}-01-15")
     
     idx1 = _get_idx_at_time(data.timeseries.time64, t1, tolerance=tolerance)
     idx2 = _get_idx_at_time(data.timeseries.time64, t2, tolerance=tolerance)
@@ -639,7 +650,6 @@ def annual_level_increase(data: DLMResult, year: int, tolerance: np.timedelta64 
         inc_std = np.sqrt(data.level_cov[idx2]+data.level_cov[idx1])
         return inc, inc_std
     else:
-        #Todo raise error
         return None, None
     
 
