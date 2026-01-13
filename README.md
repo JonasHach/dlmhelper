@@ -29,3 +29,6 @@ Install from PyPI using:
 Look at the Nile or Manua Loa example from the _examples_ folder for a basic introduction.
 
 Documentation is available [here](https://jonashach.github.io/dlmhelper/build/html/index.html)
+
+## Known issues
+- Sometimes variances (e.g., trend_cov) are negative. This is a numerical artifact from the underlying fitting routine used by the statsmodels package
