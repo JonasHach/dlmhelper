@@ -19,6 +19,10 @@ import statsmodels.tools.sm_exceptions
 
 from dlmhelper.data import DLMResult, DLMResultList, TimeSeries
 
+# Currently statsmodels produces SparseEfficiencyWarnings, these are silenced for now
+from scipy.sparse import SparseEfficiencyWarning
+warnings.simplefilter('ignore',SparseEfficiencyWarning)
+
 
 def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
             variable_level: bool = False, trend: bool = True,
