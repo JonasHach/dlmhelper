@@ -1213,9 +1213,9 @@ class DLMResultList:
                 i+=1
                 plist.append(r)
         plist.sort(key=lambda x: x.dlm_fit_rating[sort])
-        if num != 'all':
-            if (type(num)==int) & (num<i):
-                i=num
+        if n != 'all':
+            if (type(n)==int) & (n<i):
+                i=n
         if i<4:
             ncols=i
         else:
