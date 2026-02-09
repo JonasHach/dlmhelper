@@ -1027,7 +1027,7 @@ class DLMResult:
         level component plus the seasonal component
 
         :returns: Fitted timeseries
-        :rype: np.ndarray
+        :rtype: np.ndarray
         """
         return self.level+np.sum(self.seas,axis=1)
     
@@ -1035,7 +1035,7 @@ class DLMResult:
         """Returns timestamps for the fitted timeseires
         
         :returns: Array of timestamps
-        :rype: np.ndarray
+        :rtype: np.ndarray
         """
         return self.timeseries.time64
     
