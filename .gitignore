@@ -7,3 +7,4 @@ tests/
 *.dat
 dist/
 dlmhelper.egg-info/
+dist_old/

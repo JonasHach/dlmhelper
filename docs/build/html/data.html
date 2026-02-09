@@ -48,6 +48,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">data.py</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dlmhelper.data.DLMResult"><code class="docutils literal notranslate"><span class="pre">DLMResult</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.create"><code class="docutils literal notranslate"><span class="pre">DLMResult.create()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.get_fit"><code class="docutils literal notranslate"><span class="pre">DLMResult.get_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.get_time"><code class="docutils literal notranslate"><span class="pre">DLMResult.get_time()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.load"><code class="docutils literal notranslate"><span class="pre">DLMResult.load()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.name_from_spec"><code class="docutils literal notranslate"><span class="pre">DLMResult.name_from_spec()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.DLMResult.plot"><code class="docutils literal notranslate"><span class="pre">DLMResult.plot()</span></code></a></li>
@@ -69,12 +71,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.Grid.filter_inhomogeneity_temporal"><code class="docutils literal notranslate"><span class="pre">Grid.filter_inhomogeneity_temporal()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.Grid.inhomogeneity_spatial"><code class="docutils literal notranslate"><span class="pre">Grid.inhomogeneity_spatial()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.Grid.inhomogeneity_temporal"><code class="docutils literal notranslate"><span class="pre">Grid.inhomogeneity_temporal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.Grid.reference_time"><code class="docutils literal notranslate"><span class="pre">Grid.reference_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.Grid.to_TimeSeries"><code class="docutils literal notranslate"><span class="pre">Grid.to_TimeSeries()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#dlmhelper.data.TimeSeries"><code class="docutils literal notranslate"><span class="pre">TimeSeries</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.TimeSeries.load"><code class="docutils literal notranslate"><span class="pre">TimeSeries.load()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.TimeSeries.plot"><code class="docutils literal notranslate"><span class="pre">TimeSeries.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.TimeSeries.reference_time"><code class="docutils literal notranslate"><span class="pre">TimeSeries.reference_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dlmhelper.data.TimeSeries.save"><code class="docutils literal notranslate"><span class="pre">TimeSeries.save()</span></code></a></li>
 </ul>
 </li>
@@ -175,6 +179,35 @@ change in the future)</p></li>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#dlmhelper.data.DLMResult" title="dlmhelper.data.DLMResult">DLMResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlmhelper.data.DLMResult.get_fit">
+<span class="sig-name descname"><span class="pre">get_fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlmhelper.data.DLMResult.get_fit" title="Link to this definition"></a></dt>
+<dd><p>Returns the fitted timeseries which is defined as the
+level component plus the seasonal component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Fitted timeseries</p>
+</dd>
+<dt class="field-even">Rype<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlmhelper.data.DLMResult.get_time">
+<span class="sig-name descname"><span class="pre">get_time</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlmhelper.data.DLMResult.get_time" title="Link to this definition"></a></dt>
+<dd><p>Returns timestamps for the fitted timeseires</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Array of timestamps</p>
+</dd>
+<dt class="field-even">Rype<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -475,6 +508,11 @@ asymmetry component, and entropy component.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dlmhelper.data.Grid.reference_time">
+<span class="sig-name descname"><span class="pre">reference_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime64</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.datetime64('1970-01-01')</span></em><a class="headerlink" href="#dlmhelper.data.Grid.reference_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dlmhelper.data.Grid.to_TimeSeries">
 <span class="sig-name descname"><span class="pre">to_TimeSeries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zonal_avg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlmhelper.data.Grid.to_TimeSeries" title="Link to this definition"></a></dt>
@@ -565,6 +603,11 @@ defaults to None</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dlmhelper.data.TimeSeries.reference_time">
+<span class="sig-name descname"><span class="pre">reference_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime64</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">np.datetime64('1970-01-01')</span></em><a class="headerlink" href="#dlmhelper.data.TimeSeries.reference_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dlmhelper.data.TimeSeries.save">

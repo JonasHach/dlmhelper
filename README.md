@@ -16,7 +16,7 @@ Version v0.1.0 of this package is also used by the supplementary example code pr
 
 ## Version
 
-v1.0.0
+v1.0.1
 
 ## Installation
 
@@ -30,5 +30,12 @@ Look at the Nile or Manua Loa example from the _examples_ folder for a basic int
 
 Documentation is available [here](https://jonashach.github.io/dlmhelper/build/html/index.html)
 
+## Changelog
+
+### v1.0.1
+- Fixed occurence of negative variances by adding a "burn-in" period, where variances are discarded (i.e., set to NaN).
+- Added two new helper functions for DLMResult objects that allow for easy access to the fitted data and timestamps (get_fit, get_time) 
+
 ## Known issues
-- Sometimes variances (e.g., trend_cov) are negative. This is a numerical artifact from the underlying fitting routine used by the statsmodels package
+- ~~Sometimes variances (e.g., trend_cov) are negative. This is a numerical artifact from the underlying fitting routine used by the statsmodels package~~
+
