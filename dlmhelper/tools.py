@@ -31,7 +31,8 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
             seasonal_harmonics: List[int] = [4], 
             variable_seasonal: List[bool] = [False],
             autoregressive: int = 1, irregular: bool = True,
-            fixed_params: dict = None,
+            fixed_params: dict = None, method: str = 'lbfgs',
+            method_cov_type: str = "opg",
             verbose: int = 0
            ) -> DLMResult:
     """
@@ -73,12 +74,18 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
     :param irregular: Whether to a Gaussian noise term,
         defaults to True
     :type irregular: bool
-    :param verbose: Determines the amount of outpout, 0 means no output
-        and 2 means maximum outout, defaults to 0
     :type fixed_params: dict
     :param fixed_params: Use fixed covariance for fit parameters, needs 
         dict of form {param_name: value}
+    :param verbose: Determines the amount of outpout, 0 means no output
+        and 2 means maximum outout, defaults to 0
     :type verbose: int
+    :param method: Method to be passed to the fitting method 
+        (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method: str
+    :param method_cov_type: Method for covariance calculation to be passed to the fitting 
+        method (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method_cov_type: str
     :returns: A DLMResult object
     :rtype: DLMResult
     """
@@ -105,18 +112,18 @@ def dlm_fit(timeseries: TimeSeries, name: str, level: bool = True,
                 "ignore",
                 category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
             if verbose<2:
-                result = model.fit(disp=0) 
+                result = model.fit(disp=0, method=method, cov_type=method_cov_type) 
             else:
-                result = model.fit()
+                result = model.fit(method=method, cov_type=method_cov_type)
     else:
         with warnings.catch_warnings():
             warnings.simplefilter(
                 "ignore",
                 category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
             if verbose<2:
-                result =model.fit_constrained(fixed_params,disp=0) 
+                result =model.fit_constrained(fixed_params,disp=0, method=method, cov_type=method_cov_type) 
             else:
-                result = model.fit_constrained(fixed_params)
+                result = model.fit_constrained(fixed_params, method=method, cov_type=method_cov_type)
             
     return DLMResult.create(name,timeseries, result)
 
@@ -152,7 +159,8 @@ def cv_dlm_ensemble(
     autoregressive: List[int] = [1],
     irregular: List[bool] = [False, True],
     scores: dict = None,
-    folds: int = 5,
+    folds: int = 5, method: str = 'lbfgs',
+    method_cov_type: str = 'opg', 
     verbose: int = 0
     ) -> dict:
     """
@@ -209,6 +217,12 @@ def cv_dlm_ensemble(
     :param folds: Number of folds to use for cross validation,
         defaults to 5
     :type folds: int
+    :param method: Method to be passed to the fitting method 
+        (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method: str
+    :param method_cov_type: Method for covariance calculation to be passed to the fitting 
+        method (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method_cov_type: str
     :param verbose: Determines the amount of outpout, 0 means no output
         and 2 means maximum outout, defaults to 0
     :type verbose: int
@@ -230,7 +244,7 @@ def cv_dlm_ensemble(
         rlist = dlm_ensemble(timeseries, "", level, variable_level, trend,
                              variable_trend, seasonal, seasonal_period,
                              seasonal_harmonics, variable_seasonal,
-                             autoregressive, irregular, verbose=verbose)
+                             autoregressive, irregular, verbose=verbose, method=method, method_cov_type=method_cov_type)
         ensembles.append(rlist)
     
     _scores = {}
@@ -269,8 +283,8 @@ def dlm_ensemble(
     variable_seasonal: List[List[List[bool]]] = [[[True, False]]],
     autoregressive: List[int] = [1],
     irregular: List[bool] = [True,False],
-    scores: dict = None,
-    verbose: int = 0
+    scores: dict = None, method: str = 'lbfgs',
+    method_cov_type: str = 'opg', verbose: int = 0
 ) -> DLMResultList:
     """
     Fits an ensemble of Dynamic Linear Models to a TimeSeries object and
@@ -328,6 +342,12 @@ def dlm_ensemble(
         configurations. Currently used to pass the results of 
         cross validation to the final ensemble fit, defaults to None
     :type scores: dict
+    :param method: Method to be passed to the fitting method 
+        (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method: str
+    :param method_cov_type: Method for covariance calculation to be passed to the fitting 
+        method (see statsmodels.tsa.statespace.structural.UnobservedComponents.fit)
+    :type method_cov_type: str
     :param verbose: Determines the amount of outpout, 0 means no output
         and 2 means maximum outout, defaults to 0
     :type verbose: int
@@ -383,9 +403,9 @@ def dlm_ensemble(
                 stochastic_freq_seasonal=ss,irregular=i)
 
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore",
-                    category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
-                result = model.fit(disp=0)    
+                #warnings.simplefilter("ignore",
+                #    category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
+                result = model.fit(disp=0, method=method, cov_type=method_cov_type)    
             resobj=DLMResult.create(name,timeseries, result,score=scores)
             if verbose>=1: print(f"Processed: {resobj.name_from_spec()}")
             out.append(resobj)
@@ -403,7 +423,7 @@ def dlm_ensemble(
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore",
                     category=statsmodels.tools.sm_exceptions.ConvergenceWarning)
-                result = model.fit(disp=0)    
+                result = model.fit(disp=0, method=method, cov_type=method_cov_type)    
             resobj=DLMResult.create(name,timeseries, result,score=scores)
             if verbose>=1: print(f"Processed: {resobj.name_from_spec()}")
             out.append(resobj)

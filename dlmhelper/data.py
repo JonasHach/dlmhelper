@@ -724,16 +724,31 @@ class DLMResult:
         """
         res = result
         
+        #Discard first nb values because these can be negative due to diffuse initilization
+        nb0=res.loglikelihood_burn
+        lvl = np.asarray(res.level['smoothed_cov'])
+        tr  = np.asarray(res.trend['smoothed_cov'])
+        neg_mask = (lvl < 0) | (tr < 0)
+        neg_idx = np.flatnonzero(neg_mask)
+        last_neg = neg_idx.max() if neg_idx.size else -1
+        nb = max(nb0, last_neg + 1)
+        nb = min(len(lvl), nb + 1)
+
+        if last_neg > lvl.size*0.25:   
+            print(f"Warning: negative smoothed covariances occur late (last at {last_neg}). This might be an indicator for a failed fit; be carful when using these results.")
+        
         size = timeseries.time.size
         if res.level is not None:
             lvl = res.level['smoothed']
             lvl_cov = res.level['smoothed_cov']
+            lvl_cov[:nb+1] = np.nan
         else:
             lvl_cov = lvl = np.zeros(time.shape)
 
         if res.trend is not None:
             trend = res.trend['smoothed']
             trend_cov = res.trend['smoothed_cov']
+            trend_cov[:nb+1] = np.nan
         else:
             trend_cov = trend = np.zeros(time.shape)
 
@@ -743,12 +758,14 @@ class DLMResult:
             for i in range(len(res.freq_seasonal)):
                 seas[:,i] = res.freq_seasonal[i]['smoothed']
                 seas_cov[:,i] = res.freq_seasonal[i]['smoothed_cov']
+            seas_cov[:nb+1,:] = np.nan
         else:
             seas_cov = seas = np.zeros(size)
 
         if res.autoregressive is not None:
             ar = res.autoregressive['smoothed']
             ar_cov = res.autoregressive['smoothed_cov']
+            ar_cov[:nb+1] = np.nan
         else:
             ar_cov = ar = np.zeros(size)
             
@@ -777,17 +794,18 @@ class DLMResult:
             converged = res.mle_retvals['converged']
         except: 
             converged = "undefined"
-            
+
+        
         dlm_fit_rating = {
             "converged": converged,
             "aic": res.aic,
             "ll": res.llf,
-            "ssr": np.nansum(resid**2),
-            "mse": np.nanmean(resid**2),
-            "cov_level": np.nanmean(res.level['smoothed_cov']),
-            "cov_trend": np.nanmean(res.trend['smoothed_cov']),
-            "cov_seas": np.nanmean(np.sum(seas_cov,axis=1)),
-            "cov_ar": np.nanmean(ar_cov),
+            "ssr": np.nansum(resid[nb:]**2),
+            "mse": np.nanmean(resid[nb:]**2),
+            "cov_level": np.nanmean(res.level['smoothed_cov'][nb:]),
+            "cov_trend": np.nanmean(res.trend['smoothed_cov'][nb:]),
+            "cov_seas": np.nanmean(np.sum(seas_cov[nb:,:],axis=1)),
+            "cov_ar": np.nanmean(ar_cov[nb:]),
             "cv_amse": ex_score
         }
         
