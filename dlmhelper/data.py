@@ -1020,6 +1020,24 @@ class DLMResult:
         if spec['autoregressive']: out+='_A'+str(spec['ar_order'])
         if spec['irregular']: out+='_I'
         return out
+
+
+    def get_fit(self):
+        """Returns the fitted timeseries which is defined as the
+        level component plus the seasonal component
+
+        :returns: Fitted timeseries
+        :rype: np.ndarray
+        """
+        return self.level+np.sum(self.seas,axis=1)
+    
+    def get_time(self):
+        """Returns timestamps for the fitted timeseires
+        
+        :returns: Array of timestamps
+        :rype: np.ndarray
+        """
+        return self.timeseries.time64
     
 #convert np datatypes to python datatypes
 class NpDecoder(json.JSONEncoder):
